@@ -4,9 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>ชุมนุม</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <style>
-      body { background: #f5f5f3; }
+      body {
+        background: #f5f5f3;
+      }
       .page-card {
         background: #fff;
         border-radius: 12px;
@@ -24,7 +29,10 @@
         width: 100%;
         background: #fff;
       }
-      #searchBox:focus { outline: none; border-color: #888; }
+      #searchBox:focus {
+        outline: none;
+        border-color: #888;
+      }
 
       .grade-tab {
         padding: 5px 16px;
@@ -34,9 +42,14 @@
         font-size: 13px;
         cursor: pointer;
         color: #666;
-        transition: all .12s;
+        transition: all 0.12s;
       }
-      .grade-tab.active { background: #1a1a1a; border-color: #1a1a1a; color: #fff; font-weight: 500; }
+      .grade-tab.active {
+        background: #1a1a1a;
+        border-color: #1a1a1a;
+        color: #fff;
+        font-weight: 500;
+      }
 
       .room-chip {
         padding: 3px 12px;
@@ -46,9 +59,13 @@
         cursor: pointer;
         background: #fff;
         color: #666;
-        transition: all .12s;
+        transition: all 0.12s;
       }
-      .room-chip.active { border-color: #1a1a1a; color: #1a1a1a; font-weight: 500; }
+      .room-chip.active {
+        border-color: #1a1a1a;
+        color: #1a1a1a;
+        font-weight: 500;
+      }
 
       /* Result list */
       #resultListBox {
@@ -63,7 +80,7 @@
         font-size: 11px;
         font-weight: 500;
         color: #999;
-        letter-spacing: .06em;
+        letter-spacing: 0.06em;
         padding: 7px 14px 4px;
         background: #f7f7f5;
         border-bottom: 0.5px solid #ebebea;
@@ -77,8 +94,14 @@
         border-bottom: 0.5px solid #f0f0ee;
         font-size: 14px;
       }
-      .student-row:last-child { border-bottom: none; }
-      .student-code { font-size: 11px; color: #bbb; margin-left: 6px; }
+      .student-row:last-child {
+        border-bottom: none;
+      }
+      .student-code {
+        font-size: 11px;
+        color: #bbb;
+        margin-left: 6px;
+      }
       .add-btn {
         padding: 3px 14px;
         border-radius: 8px;
@@ -89,7 +112,9 @@
         cursor: pointer;
         white-space: nowrap;
       }
-      .add-btn:hover { background: #e0f2e0; }
+      .add-btn:hover {
+        background: #e0f2e0;
+      }
 
       /* Member list */
       #memberListBox {
@@ -106,7 +131,9 @@
         border-bottom: 0.5px solid #f0f0ee;
         font-size: 14px;
       }
-      .member-row:last-child { border-bottom: none; }
+      .member-row:last-child {
+        border-bottom: none;
+      }
       .del-btn {
         padding: 3px 12px;
         border-radius: 8px;
@@ -116,7 +143,9 @@
         font-size: 12px;
         cursor: pointer;
       }
-      .del-btn:hover { background: #ffe8e8; }
+      .del-btn:hover {
+        background: #ffe8e8;
+      }
 
       /* Drop zone */
       #dropZone {
@@ -127,52 +156,147 @@
         color: #888;
         cursor: pointer;
         background: #fafaf8;
-        transition: background .15s, border-color .15s;
+        transition:
+          background 0.15s,
+          border-color 0.15s;
       }
-      #dropZone.dragover { background: #eff6ff; border-color: #4a90e2; color: #2563eb; }
-      #dropZone input[type="file"] { display: none; }
+      #dropZone.dragover {
+        background: #eff6ff;
+        border-color: #4a90e2;
+        color: #2563eb;
+      }
+      #dropZone input[type="file"] {
+        display: none;
+      }
 
       /* Preview */
-      #previewTable th, #previewTable td { font-size: 13px; white-space: nowrap; }
-      .badge-ok    { background:#e8f5e8;color:#2a7a2a;font-size:11px;padding:2px 9px;border-radius:10px; }
-      .badge-here  { background:#f0f0f0;color:#666;font-size:11px;padding:2px 9px;border-radius:10px; }
-      .badge-other { background:#fff8e1;color:#b07800;font-size:11px;padding:2px 9px;border-radius:10px; }
-      .badge-none  { background:#fff0f0;color:#b83232;font-size:11px;padding:2px 9px;border-radius:10px; }
+      #previewTable th,
+      #previewTable td {
+        font-size: 13px;
+        white-space: nowrap;
+      }
+      .badge-ok {
+        background: #e8f5e8;
+        color: #2a7a2a;
+        font-size: 11px;
+        padding: 2px 9px;
+        border-radius: 10px;
+      }
+      .badge-here {
+        background: #f0f0f0;
+        color: #666;
+        font-size: 11px;
+        padding: 2px 9px;
+        border-radius: 10px;
+      }
+      .badge-other {
+        background: #fff8e1;
+        color: #b07800;
+        font-size: 11px;
+        padding: 2px 9px;
+        border-radius: 10px;
+      }
+      .badge-none {
+        background: #fff0f0;
+        color: #b83232;
+        font-size: 11px;
+        padding: 2px 9px;
+        border-radius: 10px;
+      }
     </style>
   </head>
   <body>
-    <div class="container py-4" style="max-width:760px">
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container-fluid">
+        <a href="index.html"><span class="navbar-brand">ระบบชุมนุม</span></a>
+        <div>
+          <a href="admin.html" class="btn btn-warning btn-sm me-2">Admin</a>
+          <button class="btn btn-danger btn-sm" onclick="logout()">
+            Logout
+          </button>
+        </div>
+      </div>
+    </nav>
+    <div class="container py-4" style="max-width: 760px">
       <a href="index.html" class="btn btn-secondary btn-sm mb-3">← กลับ</a>
       <h2 id="clubName" class="mb-4">ชุมนุม</h2>
 
       <!-- เพิ่มสมาชิก -->
       <div class="page-card">
-        <h6 class="mb-3" style="font-weight:500">เพิ่มสมาชิก</h6>
+        <h6 class="mb-3" style="font-weight: 500">เพิ่มสมาชิก</h6>
 
-        <input id="searchBox" placeholder="ค้นหาชื่อ นามสกุล หรือรหัสนักเรียน..." oninput="onSearch()" />
+        <input
+          id="searchBox"
+          placeholder="ค้นหาชื่อ นามสกุล หรือรหัสนักเรียน..."
+          oninput="onSearch()"
+        />
 
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:10px" id="gradeTabs">
-          <button class="grade-tab active" data-grade="all" onclick="selectGrade('all')">ทุกชั้น</button>
-          <button class="grade-tab" data-grade="4" onclick="selectGrade('4')">ม.4</button>
-          <button class="grade-tab" data-grade="5" onclick="selectGrade('5')">ม.5</button>
-          <button class="grade-tab" data-grade="6" onclick="selectGrade('6')">ม.6</button>
+        <div
+          style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px"
+          id="gradeTabs"
+        >
+          <button
+            class="grade-tab active"
+            data-grade="all"
+            onclick="selectGrade('all')"
+          >
+            ทุกชั้น
+          </button>
+          <button class="grade-tab" data-grade="4" onclick="selectGrade('4')">
+            ม.4
+          </button>
+          <button class="grade-tab" data-grade="5" onclick="selectGrade('5')">
+            ม.5
+          </button>
+          <button class="grade-tab" data-grade="6" onclick="selectGrade('6')">
+            ม.6
+          </button>
         </div>
 
-        <div id="roomChips" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;min-height:26px"></div>
+        <div
+          id="roomChips"
+          style="
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            min-height: 26px;
+          "
+        ></div>
 
-        <div id="resultListBox" style="margin-top:10px">
+        <div id="resultListBox" style="margin-top: 10px">
           <div id="resultList">
-            <div style="padding:20px;text-align:center;color:#bbb;font-size:13px">พิมพ์ชื่อ หรือเลือกชั้น/ห้องเพื่อดูรายชื่อ</div>
+            <div
+              style="
+                padding: 20px;
+                text-align: center;
+                color: #bbb;
+                font-size: 13px;
+              "
+            >
+              พิมพ์ชื่อ หรือเลือกชั้น/ห้องเพื่อดูรายชื่อ
+            </div>
           </div>
         </div>
-        <div id="resultCount" style="font-size:12px;color:#bbb;text-align:right;margin-top:6px"></div>
+        <div
+          id="resultCount"
+          style="
+            font-size: 12px;
+            color: #bbb;
+            text-align: right;
+            margin-top: 6px;
+          "
+        ></div>
       </div>
 
       <!-- รายชื่อสมาชิก -->
       <div class="page-card">
-        <h6 style="font-weight:500;margin-bottom:12px">
+        <h6 style="font-weight: 500; margin-bottom: 12px">
           รายชื่อสมาชิก
-          <span id="memberCount" style="color:#aaa;font-size:13px;font-weight:400"></span>
+          <span
+            id="memberCount"
+            style="color: #aaa; font-size: 13px; font-weight: 400"
+          ></span>
         </h6>
         <div id="memberListBox">
           <div id="memberList"></div>
@@ -181,27 +305,65 @@
 
       <!-- Import CSV -->
       <div class="page-card">
-        <h6 style="font-weight:500;margin-bottom:12px">นำเข้าสมาชิกจาก CSV</h6>
-        <div id="dropZone" onclick="document.getElementById('csvInput').click()">
-          <div style="font-size:22px;margin-bottom:4px">📂</div>
-          <div style="font-size:14px">ลาก CSV มาวางที่นี่ หรือ <u>คลิกเพื่อเลือกไฟล์</u></div>
-          <div style="font-size:12px;color:#bbb;margin-top:4px">คอลัมน์: student_code หรือ รหัสนักเรียน</div>
-          <input type="file" id="csvInput" accept=".csv" onchange="handleFileSelect(event)" />
+        <h6 style="font-weight: 500; margin-bottom: 12px">
+          นำเข้าสมาชิกจาก CSV
+        </h6>
+        <div
+          id="dropZone"
+          onclick="document.getElementById('csvInput').click()"
+        >
+          <div style="font-size: 22px; margin-bottom: 4px">📂</div>
+          <div style="font-size: 14px">
+            ลาก CSV มาวางที่นี่ หรือ <u>คลิกเพื่อเลือกไฟล์</u>
+          </div>
+          <div style="font-size: 12px; color: #bbb; margin-top: 4px">
+            คอลัมน์: student_code หรือ รหัสนักเรียน
+          </div>
+          <input
+            type="file"
+            id="csvInput"
+            accept=".csv"
+            onchange="handleFileSelect(event)"
+          />
         </div>
 
-        <div id="previewSection" style="display:none;margin-top:16px">
-          <div style="font-size:13px;font-weight:500;margin-bottom:8px">ตรวจสอบข้อมูลก่อนบันทึก</div>
+        <div id="previewSection" style="display: none; margin-top: 16px">
+          <div style="font-size: 13px; font-weight: 500; margin-bottom: 8px">
+            ตรวจสอบข้อมูลก่อนบันทึก
+          </div>
           <div class="table-responsive">
             <table class="table table-sm table-bordered mb-2" id="previewTable">
               <thead class="table-light">
-                <tr><th>#</th><th>รหัส</th><th>ชื่อ</th><th>นามสกุล</th><th>ชั้น/ห้อง</th><th>สถานะ</th></tr>
+                <tr>
+                  <th>#</th>
+                  <th>รหัส</th>
+                  <th>ชื่อ</th>
+                  <th>นามสกุล</th>
+                  <th>ชั้น/ห้อง</th>
+                  <th>สถานะ</th>
+                </tr>
               </thead>
               <tbody id="previewBody"></tbody>
             </table>
           </div>
-          <div id="previewSummary" class="mb-3" style="font-size:12px;color:#888"></div>
-          <button class="btn btn-success btn-sm" id="confirmImportBtn" onclick="confirmImport()">บันทึกสมาชิก</button>
-          <button class="btn btn-outline-secondary btn-sm ms-2" onclick="cancelImport()">ยกเลิก</button>
+          <div
+            id="previewSummary"
+            class="mb-3"
+            style="font-size: 12px; color: #888"
+          ></div>
+          <button
+            class="btn btn-success btn-sm"
+            id="confirmImportBtn"
+            onclick="confirmImport()"
+          >
+            บันทึกสมาชิก
+          </button>
+          <button
+            class="btn btn-outline-secondary btn-sm ms-2"
+            onclick="cancelImport()"
+          >
+            ยกเลิก
+          </button>
         </div>
       </div>
     </div>
