@@ -33,7 +33,7 @@ async function loadClubs() {
 window.createClub = async function () {
   const name = prompt('ชื่อชุมนุม'); if (!name) return;
   const description = prompt('รายละเอียด') || '';
-  const capacity = Number(prompt('จำนวนรับ', '30'));
+  const capacity = 25;
   const { data: year } = await db.from('academic_years').select('id').eq('is_active', true).single();
   const { data: user } = await db.auth.getUser();
   const { data: newClub, error } = await db.from('clubs').insert({ name, description, capacity, year_id: year.id }).select().single();
@@ -46,8 +46,7 @@ window.editClub = async function (id) {
   const { data } = await db.from('clubs').select('*').eq('id', id).single();
   const name = prompt('ชื่อใหม่', data.name); if (!name) return;
   const description = prompt('รายละเอียด', data.description || '');
-  const capacity = Number(prompt('จำนวนรับ', data.capacity));
-  await db.from('clubs').update({ name, description, capacity }).eq('id', id);
+  await db.from('clubs').update({ name, description}).eq('id', id);
   loadClubs();
 };
  
