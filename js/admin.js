@@ -10,15 +10,28 @@ async function loadStats() {
 }
 loadStats();
 
-async function createGoogleForm() {
+// async function createGoogleForm() {
+
+//   const { data } = await db.from("clubs").select("name");
+
+//   const clubs = data.map(c => c.name).join(",");
+
+//   const url =
+//     "https://script.google.com/macros/s/AKfycbzAKDucxvtJDQ_xTQXQDAjm0ApG6fjg62vV9T72aJ42BmqLtXhWXbHZlvSrojg3zAj9/exec"
+//     + encodeURIComponent(clubs);
+
+//   window.open(url, "_blank");
+// }
+
+window.createGoogleForm = async function () {
 
   const { data } = await db.from("clubs").select("name");
 
   const clubs = data.map(c => c.name).join(",");
 
   const url =
-    "https://script.google.com/macros/s/AKfycbzAKDucxvtJDQ_xTQXQDAjm0ApG6fjg62vV9T72aJ42BmqLtXhWXbHZlvSrojg3zAj9/exec"
-    + encodeURIComponent(clubs);
+    "https://script.google.com/macros/s/AKfycbzAKDucxvtJDQ_xTQXQDAjm0ApG6fjg62vV9T72aJ42BmqLtXhWXbHZlvSrojg3zAj9/exec" +
+    encodeURIComponent(clubs);
 
   window.open(url, "_blank");
-}
+};
