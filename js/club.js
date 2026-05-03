@@ -1,14 +1,12 @@
 const params = new URLSearchParams(location.search);
 const clubId = params.get('id');
- 
-// ─── State ───────────────────────────────────────────────────
+
 let allStudents = [];
-let selGrade = 'all';
+let selGrade = ''; 
 let selRoom = 'all';
 let searchQuery = '';
 const roomsByGrade = { 4: new Set(), 5: new Set(), 6: new Set() };
- 
-// ─── โหลดข้อมูลชุมนุม ────────────────────────────────────────
+
 async function loadClub() {
   const { data: club } = await db.from('clubs').select('*').eq('id', clubId).single();
   document.getElementById('clubName').innerText = club.name;
@@ -24,23 +22,28 @@ async function loadAllStudents() {
   });
 }
  
-// ─── รายชื่อสมาชิก ───────────────────────────────────────────
+// Render รายชื่อสมาชิกปัจจุบัน
 async function loadMembers() {
   const { data } = await db.from('enrollments').select('id,students(*)').eq('club_id', clubId);
   const box = document.getElementById('memberList');
+  
   if (!data || data.length === 0) {
-    box.innerHTML = '<div style="padding:16px 14px;color:#bbb;font-size:13px">ยังไม่มีสมาชิก</div>';
+    box.innerHTML = '<div class="empty-state">ยังไม่มีสมาชิก</div>';
     document.getElementById('memberCount').textContent = '';
     return;
   }
+  
   document.getElementById('memberCount').textContent = `(${data.length} คน)`;
+  
   box.innerHTML = data.map(r => {
     const s = r.students;
-    return `<div class="member-row">
-      <span>${s.firstname} ${s.lastname}
-        <span style="font-size:11px;color:#bbb;margin-left:6px">ม.${s.grade_level}/${s.room}</span>
-      </span>
-      <button class="del-btn" onclick="removeStudent(${r.id})">ลบ</button>
+    return `
+    <div class="member-row">
+      <div>
+        <span class="student-name">${s.firstname} ${s.lastname}</span>
+        <span class="student-room-info">ม.${s.grade_level}/${s.room}</span>
+      </div>
+      <button class="btn-remove-student" onclick="removeStudent(${r.id})">ลบ</button>
     </div>`;
   }).join('');
 }
@@ -51,7 +54,7 @@ window.removeStudent = async function (id) {
   renderSearchResult();
 };
  
-// ─── เพิ่มสมาชิก ─────────────────────────────────────────────
+// เพิ่มสมาชิก
 window.addStudent = async function (studentId) {
   const { data: year } = await db.from('academic_years').select('id').eq('is_active', true).single();
   const { error } = await db.from('enrollments').insert({ student_id: studentId, club_id: clubId, year_id: year.id });
@@ -63,7 +66,7 @@ window.addStudent = async function (studentId) {
   renderSearchResult();
 };
  
-// ─── Grade / Room filter ──────────────────────────────────────
+// ตัวกรองชั้นกะห้อง
 window.selectGrade = function (g) {
   selGrade = g;
   selRoom = 'all';
@@ -80,28 +83,27 @@ window.selectRoom = function (r) {
  
 function renderRoomChips() {
   const box = document.getElementById('roomChips');
-  if (selGrade === 'all') { box.innerHTML = ''; return; }
+  if (!selGrade) { box.innerHTML = ''; return; }
   const rooms = [...(roomsByGrade[Number(selGrade)] || [])].sort((a, b) => a - b);
   box.innerHTML =
     `<button class="room-chip active" data-room="all" onclick="selectRoom('all')">ทุกห้อง</button>` +
     rooms.map(r => `<button class="room-chip" data-room="${r}" onclick="selectRoom(${r})">ห้อง ${r}</button>`).join('');
 }
  
-// ─── Search input ─────────────────────────────────────────────
+// ค้นหา
 window.onSearch = function () {
   searchQuery = document.getElementById('searchBox').value.trim();
   if (searchQuery) {
-    selGrade = 'all';
+    selGrade = '';
     selRoom = 'all';
-    document.querySelectorAll('.grade-tab').forEach(b => b.classList.toggle('active', b.dataset.grade === 'all'));
+    document.querySelectorAll('.grade-tab').forEach(b => b.classList.remove('active'));
     document.getElementById('roomChips').innerHTML = '';
   }
   renderSearchResult();
 };
  
-// ─── Render result ────────────────────────────────────────────
+// ทำผลการค้นหานักเรียน
 async function renderSearchResult() {
-  // ดึง enrollment ทุกชุมนุม เพื่อเช็คว่าเด็กมีชุมนุมอยู่แล้วหรือเปล่า
   const { data: enrolled } = await db.from('enrollments').select('student_id, club_id');
   const enrolledInThisClub = new Set((enrolled || []).filter(e => e.club_id === clubId).map(e => e.student_id));
   const enrolledAnywhere = new Set((enrolled || []).map(e => e.student_id));
@@ -116,19 +118,17 @@ async function renderSearchResult() {
       (s.student_code || '').toLowerCase().includes(q)
     );
   } else {
-    if (selGrade !== 'all') list = list.filter(s => String(s.grade_level) === selGrade);
-    if (selRoom !== 'all') list = list.filter(s => s.room === Number(selRoom));
-    if (selGrade === 'all') {
-      document.getElementById('resultList').innerHTML =
-        '<div style="padding:20px;text-align:center;color:#bbb;font-size:13px">พิมพ์ชื่อ หรือเลือกชั้น/ห้องเพื่อดูรายชื่อ</div>';
+    if (!selGrade) {
+      document.getElementById('resultList').innerHTML = '<div class="empty-state">พิมพ์ชื่อ หรือเลือกชั้น/ห้องเพื่อดูรายชื่อ</div>';
       document.getElementById('resultCount').textContent = '';
       return;
     }
+    list = list.filter(s => String(s.grade_level) === String(selGrade));
+    if (selRoom !== 'all') list = list.filter(s => String(s.room) === String(selRoom));
   }
  
   if (list.length === 0) {
-    document.getElementById('resultList').innerHTML =
-      '<div style="padding:20px;text-align:center;color:#bbb;font-size:13px">ไม่พบนักเรียน</div>';
+    document.getElementById('resultList').innerHTML = '<div class="empty-state">ไม่พบนักเรียน</div>';
     document.getElementById('resultCount').textContent = '';
     return;
   }
@@ -145,17 +145,20 @@ async function renderSearchResult() {
     const inThis  = enrolledInThisClub.has(s.id);
     const inOther = enrolledAnywhere.has(s.id) && !inThis;
  
-    html += `<div class="student-row">
-      <span>
-        ${s.firstname} ${s.lastname}
+    html += `
+    <div class="student-row">
+      <div>
+        <span class="student-name">${s.firstname} ${s.lastname}</span>
         <span class="student-code">${s.student_code || ''}</span>
-      </span>
-      ${inThis
-        ? `<span style="font-size:12px;color:#bbb;padding:3px 10px">อยู่แล้ว</span>`
-        : inOther
-          ? `<span style="font-size:12px;color:#f59e0b;padding:3px 10px">มีชุมนุมแล้ว</span>`
-          : `<button class="add-btn" onclick="addStudent('${s.id}')">+ เพิ่ม</button>`
-      }
+      </div>
+      <div>
+        ${inThis
+          ? `<span class="status-badge status-already">อยู่แล้ว</span>`
+          : inOther
+            ? `<span class="status-badge status-has-club">มีชุมนุมแล้ว</span>`
+            : `<button class="btn-add-student" onclick="addStudent('${s.id}')">+ เพิ่ม</button>`
+        }
+      </div>
     </div>`;
   });
  
@@ -163,7 +166,7 @@ async function renderSearchResult() {
   document.getElementById('resultCount').textContent = `แสดง ${list.length} คน`;
 }
  
-// ─── CSV Import ───────────────────────────────────────────────
+// จัดการ CSV
 const dropZone = document.getElementById('dropZone');
 dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
 dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
@@ -198,9 +201,7 @@ function parseCSV(file) {
         };
       }).filter(x => x.student_code);
  
-      if (rows.length === 0) {
-        return alert('ไม่พบข้อมูลในไฟล์ หรือไม่มีคอลัมน์ student_code / รหัสนักเรียน');
-      }
+      if (rows.length === 0) return alert('ไม่พบข้อมูลในไฟล์ หรือไม่มีคอลัมน์ student_code');
       await checkAndPreview(rows);
     }
   });
@@ -210,10 +211,7 @@ async function checkAndPreview(rows) {
   const { data: year } = await db.from('academic_years').select('id').eq('is_active', true).single();
   const yearId = year?.id;
  
-  const { data: allEnrollments } = await db
-    .from('enrollments')
-    .select('student_id, club_id, students(student_code)')
-    .eq('year_id', yearId);
+  const { data: allEnrollments } = await db.from('enrollments').select('student_id, club_id, students(student_code)').eq('year_id', yearId);
  
   const enrolledMap = {};
   (allEnrollments || []).forEach(e => {
@@ -222,10 +220,7 @@ async function checkAndPreview(rows) {
   });
  
   const codes = rows.map(r => r.student_code);
-  const { data: students } = await db
-    .from('students')
-    .select('id, student_code, firstname, lastname, grade_level, room')
-    .in('student_code', codes);
+  const { data: students } = await db.from('students').select('id, student_code, firstname, lastname, grade_level, room').in('student_code', codes);
  
   const studentMap = {};
   (students || []).forEach(s => { studentMap[s.student_code] = s; });
@@ -249,10 +244,11 @@ function renderPreview(rows) {
   let okCount = 0;
   tbody.innerHTML = rows.map((r, i) => {
     let badge = '';
-    if (r._status === 'ok')               { okCount++; badge = '<span class="badge-ok">พร้อมเพิ่ม</span>'; }
-    else if (r._status === 'already_here') badge = '<span class="badge-here">อยู่ชุมนุมนี้แล้ว</span>';
-    else if (r._status === 'in_other_club') badge = '<span class="badge-other">มีชุมนุมแล้ว</span>';
-    else                                   badge = '<span class="badge-none">ไม่พบในระบบ</span>';
+    if (r._status === 'ok')               { okCount++; badge = '<span class="badge bg-success">พร้อมเพิ่ม</span>'; }
+    else if (r._status === 'already_here') badge = '<span class="badge bg-secondary">อยู่ชุมนุมนี้แล้ว</span>';
+    else if (r._status === 'in_other_club') badge = '<span class="badge bg-warning text-dark">มีชุมนุมแล้ว</span>';
+    else                                   badge = '<span class="badge bg-danger">ไม่พบในระบบ</span>';
+    
     return `<tr class="${r._status === 'ok' ? '' : 'table-secondary'}">
       <td>${i + 1}</td><td>${r.student_code}</td>
       <td>${r.firstname || '-'}</td><td>${r.lastname || '-'}</td>
@@ -261,16 +257,13 @@ function renderPreview(rows) {
     </tr>`;
   }).join('');
  
-  document.getElementById('previewSummary').innerHTML =
-    `พร้อมเพิ่ม <strong>${okCount}</strong> คน จากทั้งหมด ${rows.length} แถว`;
+  document.getElementById('previewSummary').innerHTML = `พร้อมเพิ่ม <strong>${okCount}</strong> คน จากทั้งหมด ${rows.length} แถว`;
   document.getElementById('confirmImportBtn').disabled = okCount === 0;
   document.getElementById('previewSection').style.display = 'block';
 }
  
 window.confirmImport = async function () {
-  const toInsert = pendingRows
-    .filter(r => r._status === 'ok')
-    .map(r => ({ student_id: r._studentId, club_id: clubId, year_id: r._yearId }));
+  const toInsert = pendingRows.filter(r => r._status === 'ok').map(r => ({ student_id: r._studentId, club_id: clubId, year_id: r._yearId }));
   if (toInsert.length === 0) return alert('ไม่มีรายการที่สามารถเพิ่มได้');
   const { error } = await db.from('enrollments').insert(toInsert);
   if (error) return alert('เกิดข้อผิดพลาด: ' + error.message);
@@ -287,4 +280,5 @@ window.cancelImport = function () {
   document.getElementById('csvInput').value = '';
 };
  
+// รันตอนเริ่ม
 loadClub();
