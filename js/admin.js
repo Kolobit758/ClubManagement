@@ -150,3 +150,133 @@ function renderEnrollmentTable() {
 
   document.getElementById('enrollTableWrap').classList.remove('d-none');
 }
+
+let _deleteTargetId = null;
+
+// เปิด modal เพิ่มนักเรียนใหม่
+function openAddStudent() {
+  document.querySelector('#studentModal .modal-title').textContent = 'เพิ่มนักเรียน';
+  document.getElementById('editStudentId').value    = '';
+  document.getElementById('editStudentCode').value  = '';
+  document.getElementById('editFirstname').value    = '';
+  document.getElementById('editLastname').value     = '';
+  document.getElementById('editGrade').value        = '1';
+  document.getElementById('editRoom').value         = '';
+  // ซ่อนปุ่มลบตอน add ใหม่
+  document.querySelector('#studentModal .btn-outline-danger').classList.add('d-none');
+  new bootstrap.Modal(document.getElementById('studentModal')).show();
+}
+
+// คลิกแถว → เปิด modal แก้ไข
+function openEditStudent(id, code, firstname, lastname, grade, room) {
+  document.querySelector('#studentModal .modal-title').textContent = 'แก้ไขข้อมูลนักเรียน';
+  document.getElementById('editStudentId').value    = id;
+  document.getElementById('editStudentCode').value  = code;
+  document.getElementById('editFirstname').value    = firstname;
+  document.getElementById('editLastname').value     = lastname;
+  document.getElementById('editGrade').value        = grade;
+  document.getElementById('editRoom').value         = room;
+  // แสดงปุ่มลบตอน edit
+  document.querySelector('#studentModal .btn-outline-danger').classList.remove('d-none');
+  new bootstrap.Modal(document.getElementById('studentModal')).show();
+}
+
+// บันทึก (insert หรือ update)
+async function saveStudent() {
+  const id           = document.getElementById('editStudentId').value;
+  const student_code = document.getElementById('editStudentCode').value.trim();
+  const firstname    = document.getElementById('editFirstname').value.trim();
+  const lastname     = document.getElementById('editLastname').value.trim();
+  const grade_level  = Number(document.getElementById('editGrade').value);
+  const room         = Number(document.getElementById('editRoom').value);
+
+  if (!student_code || !firstname || !lastname || !room) {
+    return alert('กรุณากรอกข้อมูลให้ครบ');
+  }
+
+  let error;
+  if (id) {
+    ({ error } = await db
+      .from('students')
+      .update({ student_code, firstname, lastname, grade_level, room })
+      .eq('id', id));
+  } else {
+    ({ error } = await db
+      .from('students')
+      .insert({ student_code, firstname, lastname, grade_level, room }));
+  }
+
+  if (error) return alert('เกิดข้อผิดพลาด: ' + error.message);
+
+  bootstrap.Modal.getInstance(document.getElementById('studentModal')).hide();
+  await loadEnrollmentStatus();
+  loadStats();
+}
+
+// กดปุ่มลบใน modal → ปิด modal แรก แล้วเปิด confirm
+function deleteStudent() {
+  const id   = document.getElementById('editStudentId').value;
+  const name = document.getElementById('editFirstname').value
+             + ' ' + document.getElementById('editLastname').value;
+
+  _deleteTargetId = id;
+  document.getElementById('deleteStudentName').textContent = name;
+
+  bootstrap.Modal.getInstance(document.getElementById('studentModal')).hide();
+  document.getElementById('studentModal').addEventListener('hidden.bs.modal', () => {
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+  }, { once: true });
+}
+
+// ยืนยันลบ
+async function confirmDelete() {
+  if (!_deleteTargetId) return;
+
+  const { error } = await db
+    .from('students')
+    .delete()
+    .eq('id', _deleteTargetId);
+
+  if (error) return alert('เกิดข้อผิดพลาด: ' + error.message);
+
+  bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+  _deleteTargetId = null;
+  await loadEnrollmentStatus();
+  loadStats();
+}
+
+// แก้ renderEnrollmentTable — เพิ่ม onclick ที่ tr
+function renderEnrollmentTable() {
+  const filterStatus = document.getElementById('filterStatus').value;
+
+  let filtered = _enrollData;
+  if (filterStatus === 'enrolled')     filtered = _enrollData.filter(s => s.club_name);
+  if (filterStatus === 'not_enrolled') filtered = _enrollData.filter(s => !s.club_name);
+
+  const enrolled    = _enrollData.filter(s => s.club_name).length;
+  const notEnrolled = _enrollData.filter(s => !s.club_name).length;
+
+  document.getElementById('countEnrolled').textContent    = enrolled;
+  document.getElementById('countNotEnrolled').textContent = notEnrolled;
+  document.getElementById('countTotal').textContent       = _enrollData.length;
+  document.getElementById('enrollSummary').classList.remove('d-none');
+
+  const tbody = document.getElementById('enrollTableBody');
+  tbody.innerHTML = filtered.map((s, i) => `
+    <tr onclick="openEditStudent('${s.id}','${s.student_code}','${s.firstname}','${s.lastname}',${s.grade_level},${s.room})">
+      <td class="text-muted small">${i + 1}</td>
+      <td><code>${s.student_code}</code></td>
+      <td>${s.firstname} ${s.lastname}</td>
+      <td><span class="badge bg-light text-dark border">ม.${s.grade_level}/${s.room}</span></td>
+      <td>${s.club_name ?? '<span class="text-muted">—</span>'}</td>
+      <td>
+        ${s.club_name
+          ? '<span class="badge bg-success-subtle text-success border border-success-subtle">มีชุมนุมแล้ว</span>'
+          : '<span class="badge bg-danger-subtle text-danger border border-danger-subtle">ยังไม่มีชุมนุม</span>'
+        }
+      </td>
+    </tr>
+  `).join('');
+
+  document.getElementById('enrollTableWrap').classList.remove('d-none');
+}
