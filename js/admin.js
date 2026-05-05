@@ -1,3 +1,22 @@
+// เพิ่มใน admin.js ข้างบนสุด
+async function checkAdminAccess() {
+  const { data: user } = await db.auth.getUser();
+  const { data: profile } = await db
+    .from('users_profile')
+    .select('role')
+    .eq('id', user.user.id)
+    .single();
+  if (profile?.role !== 'admin') location = 'index.html';
+}
+async function init() {
+  await checkAdminAccess();
+  initEnrollmentSection();
+  loadStats();
+}
+
+init();
+
+
 async function loadStats() {
   let { count: students } = await db
     .from("students")
@@ -8,7 +27,7 @@ async function loadStats() {
   document.getElementById("stats").innerHTML =
     `นักเรียน ${students} คน <br> ชุมนุม ${clubs} ห้อง`;
 }
-loadStats();
+
 
 // async function createGoogleForm() {
 
@@ -280,3 +299,4 @@ function renderEnrollmentTable() {
 
   document.getElementById('enrollTableWrap').classList.remove('d-none');
 }
+
