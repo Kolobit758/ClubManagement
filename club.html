@@ -205,6 +205,8 @@
       }
     </style>
   </head>
+  <script src="js/csvExport.js"></script>
+  <script src="js/club_export_patch.js"></script>
   <body>
     <nav class="navbar navbar-expand sticky-top py-2">
       <div class="container-fluid px-4">
@@ -229,8 +231,6 @@
           >
             <i data-lucide="log-out" style="width: 16px"></i> ออกจากระบบ
           </button>
-
-          
         </div>
       </div>
     </nav>
@@ -313,10 +313,19 @@
           <div>
             <i data-lucide="users" style="width: 20px"></i> รายชื่อสมาชิก
           </div>
-          <span
-            id="memberCount"
-            class="badge bg-light text-dark border fw-normal"
-          ></span>
+          <div class="d-flex align-items-center gap-2">
+            <span
+              id="memberCount"
+              class="badge bg-light text-dark border fw-normal"
+            ></span>
+            <button
+              id="exportMembersBtn"
+              class="btn btn-outline-success btn-sm d-flex align-items-center gap-1"
+              onclick="exportMembers()"
+            >
+              <i data-lucide="download" style="width: 14px"></i> Export CSV
+            </button>
+          </div>
         </div>
         <div id="memberListBox" class="result-box">
           <div id="memberList"><div class="empty-state">กำลังโหลด...</div></div>

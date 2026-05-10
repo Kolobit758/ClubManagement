@@ -428,5 +428,62 @@ window.cancelImport = function () {
   document.getElementById("csvInput").value = "";
 };
 
+window.exportMembers = async function () {
+  const btn = document.getElementById("exportMembersBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "กำลัง Export..."; }
+ 
+  try {
+    const { data, error } = await db
+      .from("enrollments")
+      .select("students(student_code, firstname, lastname, grade_level, room)")
+      .eq("club_id", clubId);
+ 
+    if (error) throw error;
+    if (!data || data.length === 0) {
+      alert("ยังไม่มีสมาชิกในชุมนุมนี้");
+      return;
+    }
+ 
+    // เรียงตาม ชั้น → ห้อง → ชื่อ
+    const rows = data
+      .map((e, i) => ({
+        no: i + 1,
+        student_code: e.students.student_code,
+        firstname: e.students.firstname,
+        lastname: e.students.lastname,
+        grade_level: e.students.grade_level,
+        room: e.students.room,
+      }))
+      .sort(
+        (a, b) =>
+          a.grade_level - b.grade_level ||
+          a.room - b.room ||
+          a.firstname.localeCompare(b.firstname, "th")
+      )
+      .map((r, i) => ({ ...r, no: i + 1 })); // เลขลำดับใหม่หลังเรียง
+ 
+    const columns = ["no", "student_code", "firstname", "lastname", "grade_level", "room"];
+    const headers = {
+      no: "ลำดับ",
+      student_code: "รหัสนักเรียน",
+      firstname: "ชื่อ",
+      lastname: "นามสกุล",
+      grade_level: "ชั้น",
+      room: "ห้อง",
+    };
+ 
+    // ดึงชื่อชุมนุมสำหรับตั้งชื่อไฟล์
+    const clubName = document.getElementById("clubName")?.innerText || "club";
+    const safeName = clubName.replace(/[\\/:*?"<>|]/g, "_");
+ 
+    const csv = buildCSV(rows, columns, headers);
+    downloadCSV(csv, csvFilename(`สมาชิก_${safeName}`));
+  } catch (err) {
+    alert("เกิดข้อผิดพลาด: " + err.message);
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = "📥 Export CSV"; }
+  }
+};
+
 // รันตอนเริ่ม
 // loadClub();

@@ -300,3 +300,57 @@ function renderEnrollmentTable() {
   document.getElementById('enrollTableWrap').classList.remove('d-none');
 }
 
+window.exportEnrollment = function () {
+  // _enrollData มาจาก admin.js (cache ไว้อยู่แล้ว)
+  if (!_enrollData || _enrollData.length === 0) {
+    alert("ไม่มีข้อมูล กรุณาเลือกปีการศึกษาก่อน");
+    return;
+  }
+ 
+  const filterStatus = document.getElementById("filterStatus").value;
+ 
+  let filtered = _enrollData;
+  if (filterStatus === "enrolled")     filtered = _enrollData.filter((s) => s.club_name);
+  if (filterStatus === "not_enrolled") filtered = _enrollData.filter((s) => !s.club_name);
+ 
+  const rows = filtered.map((s, i) => ({
+    no: i + 1,
+    student_code: s.student_code,
+    firstname: s.firstname,
+    lastname: s.lastname,
+    grade_level: s.grade_level,
+    room: s.room,
+    club_name: s.club_name || "ยังไม่มีชุมนุม",
+    enroll_status: s.club_name ? "มีชุมนุมแล้ว" : "ยังไม่มีชุมนุม",
+  }));
+ 
+  const columns = [
+    "no", "student_code", "firstname", "lastname",
+    "grade_level", "room", "club_name", "enroll_status",
+  ];
+  const headers = {
+    no: "ลำดับ",
+    student_code: "รหัสนักเรียน",
+    firstname: "ชื่อ",
+    lastname: "นามสกุล",
+    grade_level: "ชั้น",
+    room: "ห้อง",
+    club_name: "ชุมนุม",
+    enroll_status: "สถานะ",
+  };
+ 
+  // ชื่อไฟล์สะท้อน filter ที่เลือก
+  const suffix =
+    filterStatus === "enrolled" ? "มีชุมนุม"
+    : filterStatus === "not_enrolled" ? "ยังไม่มีชุมนุม"
+    : "ทั้งหมด";
+ 
+  const yearSel = document.getElementById("filterYear");
+  const yearText = yearSel.options[yearSel.selectedIndex]?.text
+    .replace(" (ปัจจุบัน)", "")
+    .trim() || "";
+ 
+  const csv = buildCSV(rows, columns, headers);
+  downloadCSV(csv, csvFilename(`สถานะชุมนุม_${yearText}_${suffix}`));
+};
+
